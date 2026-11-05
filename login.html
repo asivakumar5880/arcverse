@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ArcVerse — Sign In</title>
+    <meta name="description" content="Secure login for ArcVerse anime library." />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/arcverse/assets/logo/logo-48.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/arcverse/assets/logo/logo-192.png" />
+    <script type="module" crossorigin src="/arcverse/assets/login-D6Dha3vN.js"></script>
+    <link rel="modulepreload" crossorigin href="/arcverse/assets/auth-D-yiN0Qv.js">
+    <link rel="stylesheet" crossorigin href="/arcverse/assets/login-DvHfqMVw.css">
+  </head>
+  <body>
+    <div class="login-page" id="loginPage">
+
+      <!-- Background orbs -->
+      <div class="orb orb-1" aria-hidden="true"></div>
+      <div class="orb orb-2" aria-hidden="true"></div>
+      <div class="orb orb-3" aria-hidden="true"></div>
+      <div class="orb orb-4" aria-hidden="true"></div>
+
+      <!-- Login card -->
+      <div class="login-card" id="loginCard" role="main">
+
+        <!-- LEFT PANEL -->
+        <div class="left-panel" aria-hidden="true">
+          <div class="left-logo">
+            <img src="/arcverse/assets/logo/logo-192.png" alt="SA Monogram" width="56" height="56" />
+          </div>
+          <p class="left-heading">Welcome to Your</p>
+          <h1 class="left-title">ARCVERSE</h1>
+          <p class="left-desc">Your personal anime library. Browse every season and language in one place.</p>
+
+          <div class="feature-cards">
+            <div class="feature-card">
+              <span class="feature-icon">🔒</span>
+              <div class="feature-text">
+                <strong>Secure Access</strong>
+                <span>Protected Login</span>
+              </div>
+            </div>
+            <div class="feature-card">
+              <span class="feature-icon">🎌</span>
+              <div class="feature-text">
+                <strong>Anime Library</strong>
+                <span>Seasons &amp; Languages</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="left-footer">
+            <span>Product of <strong style="color:rgba(255,255,255,0.65)">ArcVerse</strong></span>
+            <span>Version 1.0</span>
+          </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="right-panel">
+          <h2 class="right-heading">Welcome Back</h2>
+          <p class="right-subtext">Enter your credentials to access Arcverse.</p>
+
+          <form id="loginForm" novalidate autocomplete="on">
+
+            <!-- Global error -->
+            <div class="global-error" id="globalError" role="alert" aria-live="polite">
+              <span class="err-icon">⚠</span>
+              <span id="globalErrorMsg"></span>
+            </div>
+
+            <!-- Email field -->
+            <div class="form-group">
+              <label class="field-label" for="emailInput">EMAIL</label>
+              <div class="input-wrap">
+                <span class="input-icon left-icon" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </span>
+                <input
+                  type="email"
+                  id="emailInput"
+                  class="form-input"
+                  placeholder="admin@arcverse.app"
+                  autocomplete="username email"
+                  required
+                  inputmode="email"
+                  aria-describedby="emailError"
+                />
+              </div>
+              <div class="field-error" id="emailError" role="alert"></div>
+            </div>
+
+            <!-- Password field -->
+            <div class="form-group">
+              <label class="field-label" for="passwordInput">
+                PASSWORD
+                <a href="#" class="forgot-link" id="forgotLink" tabindex="-1">Forgot?</a>
+              </label>
+              <div class="input-wrap">
+                <span class="input-icon left-icon" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </span>
+                <input
+                  type="password"
+                  id="passwordInput"
+                  class="form-input"
+                  placeholder="••••••••"
+                  autocomplete="current-password"
+                  required
+                  aria-describedby="passwordError"
+                />
+                <button type="button" class="eye-btn" id="eyeBtn" aria-label="Show password" tabindex="-1">
+                  <svg id="eyeOpen" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg id="eyeClosed" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+              </div>
+              <div class="field-error" id="passwordError" role="alert"></div>
+            </div>
+
+            <!-- Remember -->
+            <div class="remember-row">
+              <input type="checkbox" id="rememberMe" />
+              <label for="rememberMe">Remember this device</label>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="signin-btn" id="signinBtn">
+              <span class="btn-text">SIGN IN TO ARCVERSE</span>
+              <span class="btn-arrow" aria-hidden="true">→</span>
+              <div class="btn-spinner" aria-hidden="true"></div>
+              <span class="btn-check" aria-hidden="true">✓</span>
+            </button>
+
+          </form>
+
+          <p class="right-footer">Authorized Personnel Only — Unauthorized access is prohibited.</p>
+        </div>
+      </div><!-- .login-card -->
+
+    </div><!-- .login-page -->
+
+  </body>
+</html>
