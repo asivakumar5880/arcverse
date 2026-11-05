@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ArcVerse — Discover Anime</title>
+    <meta
+      name="description"
+      content="Browse thousands of anime with the AniList API."
+    />
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/logo/logo-48.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/logo/logo-192.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/assets/logo/logo-192.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta property="og:image" content="/assets/logo/logo-512.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="/assets/logo/logo-512.png" />
+    <link rel="preload" as="image" href="/assets/loading-bg.webp" type="image/webp" />
+    <link rel="preload" as="image" href="/assets/loading-bg.jpg" />
+  </head>
+  <body>
+    <!-- Full-screen dynamic anime background with smooth cross-fade -->
+    <div class="app-bg-container" id="appBgContainer" aria-hidden="true">
+      <div class="app-bg-layer current" id="appBgA"></div>
+      <div class="app-bg-layer next" id="appBgB"></div>
+      <div class="app-bg-overlay"></div>
+    </div>
+
+    <nav class="navbar" role="navigation" aria-label="Main">
+      <a href="/index.html" class="logo" aria-label="ArcVerse home">
+        <img src="/assets/logo/logo-192.png" class="logo-mark" alt="SA Monogram" width="44" height="44" /> ArcVerse
+      </a>
+      <div class="nav-search" role="search">
+        <span class="search-icon" aria-hidden="true">&#128269;</span>
+        <input
+          type="search"
+          id="searchInput"
+          placeholder="Search anime…"
+          aria-label="Search anime"
+          autocomplete="off"
+        />
+        <button class="nav-clear" id="searchClear" aria-label="Clear search">
+          &times;
+        </button>
+      </div>
+      <button class="nav-logout-btn" id="navLogoutBtn" aria-label="Sign out" title="Sign out">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span>Sign Out</span>
+      </button>
+    </nav>
+
+    <div class="controls" id="controls">
+      <span class="genre-label">Genres:</span>
+      <div class="genre-scroll" id="genreButtons" role="group"
+        aria-label="Filter by genre"></div>
+      <div class="sort-wrap">
+        <label for="sortSelect">Sort</label>
+        <select id="sortSelect" aria-label="Sort order">
+          <option value="POPULARITY_DESC">Popular</option>
+          <option value="START_DATE_DESC">Latest</option>
+          <option value="SCORE_DESC">Top Rated</option>
+          <option value="TRENDING_DESC">Trending</option>
+          <option value="TITLE_ROMAJI">A-Z</option>
+        </select>
+      </div>
+    </div>
+
+    <main id="mainContainer">
+      <!-- Luxury SA Monogram Loading Screen (fullscreen or section variant) -->
+      <div class="loading-screen variant-fullscreen" id="loadingScreen" aria-label="Loading ArcVerse">
+        <!-- Layer 1: Photo background (Ken Burns zoom/drift) -->
+        <div class="ls-bg" id="lsBg"></div>
+        <!-- Layer 2: Dark gradient overlay + blur -->
+        <div class="ls-overlay"></div>
+        <!-- Layer 3: Warm golden light-leak -->
+        <div class="ls-leak"></div>
+        <!-- Layer 4: Sparkle particles -->
+        <div class="ls-sparks" id="lsSparks"></div>
+        <!-- Layer 5: SA Monogram logo centered with soft pulse + thin gold ring -->
+        <div class="loading-content">
+          <div class="loading-emblem-wrap">
+            <img src="/assets/logo/logo-512.png" alt="SA Monogram" class="loading-emblem" />
+            <div class="loading-emblem-glow"></div>
+          </div>
+          <div class="loading-title">ArcVerse</div>
+          <div class="loading-ring" id="loadingRing"></div>
+        </div>
+      </div>
+
+      <div class="grid" id="grid" aria-live="polite"></div>
+
+      <!-- Infinite scroll sentinel -->
+      <div class="sentinel" id="sentinel"></div>
+
+      <!-- Load more backup button -->
+      <div class="load-more-wrap" id="loadMoreWrap" style="display: none">
+        <button class="btn" id="loadMoreBtn">Load More</button>
+      </div>
+
+      <!-- Empty / no results -->
+      <div class="state-msg" id="emptyState" style="display: none">
+        <h3 id="emptyTitle">No results found</h3>
+        <p id="emptyDesc">Try a different search term or filter.</p>
+      </div>
+
+      <!-- Error state -->
+      <div class="state-msg" id="errorState">
+        <div class="error-box" id="errorBox">
+          <h3>Something went wrong</h3>
+          <p id="errorMsg">We couldn't load anime data.</p>
+          <button class="btn" id="retryBtn">Retry</button>
+        </div>
+      </div>
+    </main>
+
+    <button class="back-top" id="backTop" aria-label="Back to top">
+      &uarr;
+    </button>
+
+    <script type="module" src="/script.js"></script>
+  </body>
+</html>

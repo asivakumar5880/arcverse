@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anime Details — ArcVerse</title>
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/logo/logo-48.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/logo/logo-192.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/assets/logo/logo-192.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta property="og:image" content="/assets/logo/logo-512.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="/assets/logo/logo-512.png" />
+    <link rel="preload" as="image" href="/assets/loading-bg.webp" type="image/webp" />
+    <link rel="preload" as="image" href="/assets/loading-bg.jpg" />
+  </head>
+  <body>
+    <!-- Luxury SA Monogram Loading Splash Screen -->
+    <div class="loading-screen variant-fullscreen" id="loadingScreen" aria-label="Loading ArcVerse">
+      <!-- Layer 1: Photo background (Ken Burns zoom/drift) -->
+      <div class="ls-bg" id="lsBg"></div>
+      <!-- Layer 2: Dark gradient overlay + blur -->
+      <div class="ls-overlay"></div>
+      <!-- Layer 3: Warm golden light-leak -->
+      <div class="ls-leak"></div>
+      <!-- Layer 4: Sparkle particles -->
+      <div class="ls-sparks" id="lsSparks"></div>
+      <!-- Layer 5: SA Monogram logo centered with soft pulse + thin gold ring -->
+      <div class="loading-content">
+        <div class="loading-emblem-wrap">
+          <img src="/assets/logo/logo-512.png" alt="SA Monogram" class="loading-emblem" />
+          <div class="loading-emblem-glow"></div>
+        </div>
+        <div class="loading-title">ArcVerse</div>
+        <div class="loading-ring" id="loadingRing"></div>
+      </div>
+    </div>
+
+    <!-- Full-screen dynamic anime background with smooth cross-fade -->
+    <div class="app-bg-container" id="appBgContainer" aria-hidden="true">
+      <div class="app-bg-layer current" id="appBgA"></div>
+      <div class="app-bg-layer next" id="appBgB"></div>
+      <div class="app-bg-overlay"></div>
+    </div>
+
+    <nav class="navbar" role="navigation" aria-label="Main">
+      <a href="/index.html" class="logo" aria-label="ArcVerse home">
+        <img src="/assets/logo/logo-192.png" class="logo-mark" alt="SA Monogram" width="44" height="44" /> ArcVerse
+      </a>
+    </nav>
+
+    <!-- Error / invalid id state -->
+    <div class="state-msg" id="errorState" style="display: none">
+      <div class="error-box show">
+        <h3 id="errorTitle">Anime not found</h3>
+        <p id="errorMsg">The anime you're looking for isn't available.</p>
+        <a href="/index.html" class="btn secondary">Back to Home</a>
+      </div>
+    </div>
+
+    <!-- Detail content (populated by anime.js) -->
+    <div id="detailContent" style="display: none">
+      <section class="detail-hero">
+        <div class="detail-banner" id="banner"></div>
+        <div class="detail-hero-inner">
+          <div class="detail-cover" id="coverWrap">
+            <div class="shimmer"></div>
+            <img id="coverImg" alt="" loading="lazy" decoding="async" />
+          </div>
+          <div class="detail-info">
+            <h1 id="title"></h1>
+            <div class="sub-title" id="subTitle"></div>
+            <div class="detail-stats" id="stats"></div>
+            <div class="genres-row" id="genres"></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="detail-body">
+        <!-- Episodes Section (Full Width Information Guide) -->
+        <section class="episodes-section" id="episodesSection">
+          <div class="episodes-header">
+            <div class="episodes-title-group">
+              <span class="episodes-badge">&#9776; EPISODES</span>
+              <h2 class="episodes-heading">Episode Guide</h2>
+            </div>
+            <!-- Admin Toolbar (Owner Only) -->
+            <div class="admin-toolbar" id="adminToolbar">
+              <button class="btn admin-toggle-btn" id="adminToggleBtn" title="Toggle Admin Mode">
+                <span class="admin-icon">&#128274;</span> Admin: <span id="adminStatusText">OFF</span>
+              </button>
+              <div class="admin-actions" id="adminActions" style="display: none">
+                <button class="btn secondary admin-add-season-btn" id="addSeasonBtn">&#43; Season</button>
+                <button class="btn gold-btn" id="addEpisodeBtn">&#43; Add Episode</button>
+                <button class="btn admin-logout-btn" id="adminLogoutBtn" title="Log out from Admin Mode">&#9211; Logout</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Season Tabs -->
+          <div class="season-tabs-bar" id="seasonTabsBar">
+            <div class="season-tabs" id="seasonTabs" role="tablist"></div>
+          </div>
+
+          <!-- Full Width Episode List -->
+          <div class="episode-list-container">
+            <div class="episode-list" id="episodeList"></div>
+          </div>
+        </section>
+
+        <div class="detail-section">
+          <h2>Synopsis</h2>
+          <p class="description" id="description"></p>
+        </div>
+
+        <div class="detail-section">
+          <h2>Characters</h2>
+          <div class="char-grid" id="charGrid" aria-live="polite"></div>
+          <div class="load-more-wrap" id="charLoadMoreWrap" style="display: none">
+            <button class="btn" id="charLoadMoreBtn">Load More Characters</button>
+          </div>
+          <div class="loading-inline" id="charLoading" style="display: none">
+            Loading characters…
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin: Add/Edit Episode Modal -->
+    <div class="modal-backdrop" id="episodeModal" style="display: none">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3 id="modalTitle">Add Episode</h3>
+          <button class="modal-close" id="closeModalBtn">&times;</button>
+        </div>
+        <form class="modal-body" id="episodeForm">
+          <input type="hidden" id="modalEpEditId" />
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="modalSeasonSelect">Season</label>
+              <select id="modalSeasonSelect" required></select>
+            </div>
+            <div class="form-group w-30">
+              <label for="modalEpNumber">Episode #</label>
+              <input type="number" id="modalEpNumber" min="1" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="modalEpTitle">Episode Title</label>
+            <input type="text" id="modalEpTitle" placeholder="e.g. Episode 1" required />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="modalDuration">Duration (minutes)</label>
+              <input type="number" id="modalDuration" min="1" value="24" required />
+            </div>
+            <div class="form-group flex-1">
+              <label for="modalThumbnailUrl">Thumbnail URL (optional)</label>
+              <input type="url" id="modalThumbnailUrl" placeholder="https://.../thumb.jpg" />
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn secondary" id="cancelModalBtn">Cancel</button>
+            <button type="submit" class="btn gold-btn" id="saveEpisodeBtn">Save Episode</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Admin: Owner Login Modal (Dark Luxury style with SA Monogram) -->
+    <div class="modal-backdrop" id="adminLoginModal" style="display: none">
+      <div class="modal-box admin-login-box" id="adminLoginBox">
+        <div class="admin-login-header">
+          <div class="admin-login-logo-wrap">
+            <img src="/assets/logo/logo-512.png" alt="SA Monogram" class="admin-login-logo" />
+            <div class="admin-login-glow"></div>
+          </div>
+          <h3>ArcVerse Owner Access</h3>
+          <p class="admin-login-subtitle">Enter owner administrator password</p>
+        </div>
+
+        <form class="modal-body admin-login-body" id="adminLoginForm">
+          <div class="form-group">
+            <label for="adminPasswordInput">Password</label>
+            <div class="password-input-wrap">
+              <input
+                type="password"
+                id="adminPasswordInput"
+                class="admin-password-input"
+                placeholder="Enter password"
+                autocomplete="current-password"
+                required
+              />
+              <button
+                type="button"
+                class="toggle-password-btn"
+                id="toggleAdminPasswordBtn"
+                aria-label="Toggle password visibility"
+                title="Show password"
+              >
+                <svg class="eye-icon eye-show" id="eyeShowIcon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <svg class="eye-icon eye-hide" id="eyeHideIcon" style="display:none" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+              </button>
+            </div>
+            <div class="admin-login-error" id="adminLoginError" style="display: none">Incorrect password</div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn secondary" id="cancelAdminLoginBtn">Cancel</button>
+            <button type="submit" class="btn gold-btn" id="submitAdminLoginBtn">Login</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+
+
+    <button class="btn secondary" id="backBtn"
+      style="position: fixed; top: 76px; left: 20px; z-index: 70;">
+      &larr; Back
+    </button>
+
+    <button class="back-top" id="backTop" aria-label="Back to top">
+      &uarr;
+    </button>
+
+    <script type="module" src="/anime.js"></script>
+  </body>
+</html>
