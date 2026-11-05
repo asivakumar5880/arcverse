@@ -1,16 +1,15 @@
-import { defineConfig } from "vite";
-import { adminAuthPlugin } from "./server/adminAuth.js";
+import { defineConfig } from 'vite'
+import { resolve } from 'path'
 
-// Multi-page build: roll up anime.html alongside index.html.
 export default defineConfig({
-  plugins: [adminAuthPlugin()],
+  base: '/arcverse/',
   build: {
     rollupOptions: {
       input: {
-        main: new URL("./index.html", import.meta.url).pathname,
-        anime: new URL("./anime.html", import.meta.url).pathname,
-        login: new URL("./login.html", import.meta.url).pathname,
+        main: resolve(__dirname, 'index.html'),
+        anime: resolve(__dirname, 'anime.html'),
+        login: resolve(__dirname, 'login.html'),
       },
     },
   },
-});
+})
