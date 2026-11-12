@@ -134,6 +134,7 @@ export async function anilistQuery(query, variables = {}, signal = null) {
     }
   }
 
+  console.error("[ArcVerse AniList API Error]", lastError);
   throw lastError || new Error("AniList request failed");
 }
 

@@ -22,6 +22,7 @@ export default defineConfig(async ({ command }) => {
           anime: resolve(__dirname, 'anime.html'),
           login: resolve(__dirname, 'login.html'),
           signup: resolve(__dirname, 'signup.html'),
+          notFound: resolve(__dirname, '404.html'),
         },
       },
     },
