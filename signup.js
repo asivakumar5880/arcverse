@@ -1,10 +1,10 @@
 // signup.js — ArcVerse Public User Registration Logic
 
-import { isSessionValid } from "./auth.js";
+import { isSessionValid, getAppUrl } from "./auth.js";
 
 /* ---- If already logged in, redirect to the app ---- */
 if (isSessionValid()) {
-  location.replace("/index.html");
+  location.replace(getAppUrl("index.html"));
 }
 
 /* ---- DOM Elements ---- */
@@ -75,7 +75,7 @@ function successAndRedirect() {
   setTimeout(() => {
     signupCard.classList.add("success-out");
     signupCard.addEventListener("animationend", () => {
-      location.replace("/index.html");
+      location.replace(getAppUrl("index.html"));
     }, { once: true });
   }, 400);
 }
@@ -214,6 +214,12 @@ form.addEventListener("submit", async (e) => {
     // Failure handling
     setLoading(false);
 
+    if (res.status === 404 || res.status === 405) {
+      showGlobalError("ArcVerse Backend is in local mode. Registration requires the backend server running locally on your computer.");
+      shakeCard();
+      return;
+    }
+
     if (res.status === 409) {
       showGlobalError(data.error || "An account with this email already exists. Please sign in.");
       emailInput.focus();
@@ -224,7 +230,7 @@ form.addEventListener("submit", async (e) => {
 
   } catch {
     setLoading(false);
-    showGlobalError("Unable to reach server. Please check your connection.");
+    showGlobalError("Cannot connect to backend server. Registration requires the backend server running locally on your computer.");
     shakeCard();
   }
 });

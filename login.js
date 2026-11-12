@@ -1,12 +1,12 @@
 // login.js — ArcVerse Login Page Logic
 
-import { isSessionValid } from "./auth.js";
+import { isSessionValid, getAppUrl } from "./auth.js";
 
 /* ---- If already logged in, skip to the app ---- */
 if (isSessionValid()) {
   const params = new URLSearchParams(location.search);
   const next = params.get("next");
-  location.replace(next && next.startsWith("/") ? decodeURIComponent(next) : "/index.html");
+  location.replace(next && next.startsWith("/") ? decodeURIComponent(next) : getAppUrl("index.html"));
 }
 
 /* ---- DOM ---- */
@@ -189,7 +189,7 @@ function successAndRedirect() {
     loginCard.addEventListener("animationend", () => {
       const params = new URLSearchParams(location.search);
       const next = params.get("next");
-      location.replace(next && next.startsWith("/") ? decodeURIComponent(next) : "/index.html");
+      location.replace(next && next.startsWith("/") ? decodeURIComponent(next) : getAppUrl("index.html"));
     }, { once: true });
   }, 400);
 }
@@ -305,6 +305,12 @@ form.addEventListener("submit", async (e) => {
     // Failure
     setLoading(false);
 
+    if (res.status === 404 || res.status === 405) {
+      showGlobalError("ArcVerse Backend is in local mode. Login requires the backend server running locally on your computer.");
+      shakeCard();
+      return;
+    }
+
     if (res.status === 429) {
       const lock = getLockout() || { count: MAX_ATTEMPTS, until: 0 };
       lock.until = Date.now() + LOCKOUT_MS;
@@ -333,7 +339,7 @@ form.addEventListener("submit", async (e) => {
 
   } catch {
     setLoading(false);
-    showGlobalError("Something went wrong. Please check your connection and try again.");
+    showGlobalError("Cannot connect to backend server. Login requires the backend server running locally on your computer.");
     shakeCard();
   }
 });

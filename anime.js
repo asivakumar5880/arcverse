@@ -1,9 +1,7 @@
 // anime.js — Anime Detail & Episode Information Guide
 // Powered by AniList official anime data.
 
-import { requireAuth, logout } from "./auth.js";
-// Gate: redirect to login if no valid session.
-if (!requireAuth()) throw new Error("unauthenticated");
+import { isSessionValid, logout, getAppUrl } from "./auth.js";
 
 import {
   anilistQuery,
@@ -279,7 +277,7 @@ function renderEpisodeList() {
   const fallbackThumb =
     currentAnimeData?.bannerImage ||
     pickImage(currentAnimeData?.coverImage) ||
-    "/assets/loading-bg.jpg";
+    getAppUrl("assets/loading-bg.jpg");
 
   currentSeason.episodes.forEach((ep) => {
     const card = document.createElement("div");
@@ -672,7 +670,7 @@ charLoadMoreBtn.addEventListener("click", () => {
 
 /* ------------------ Navigation ------------------ */
 backBtn.addEventListener("click", () => {
-  history.length > 1 ? history.back() : (window.location.href = "/index.html");
+  history.length > 1 ? history.back() : (window.location.href = getAppUrl("index.html"));
 });
 
 window.addEventListener("scroll", () => {

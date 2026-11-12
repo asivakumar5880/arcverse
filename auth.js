@@ -54,21 +54,29 @@ export function clearSession() {
   } catch {}
 }
 
+/** Returns a URL with the correct Vite base prefix (e.g. /arcverse/index.html) */
+export function getAppUrl(path = "") {
+  const base = import.meta.env.BASE_URL || "/";
+  const cleanBase = base.endsWith("/") ? base : base + "/";
+  const cleanPath = path.startsWith("./") ? path.slice(2) : path.startsWith("/") ? path.slice(1) : path;
+  return cleanBase + cleanPath;
+}
+
 /**
- * Call at the top of every protected page.
- * If there is no valid session, redirects to /login.html immediately.
- * Returns true if session is valid (page may continue loading).
+ * Call on protected pages.
+ * If there is no valid session, redirects to login.html with next parameter.
+ * Returns true if session is valid.
  */
 export function requireAuth() {
   if (!isSessionValid()) {
     const dest = encodeURIComponent(location.pathname + location.search);
-    location.replace("/login.html?next=" + dest);
+    location.replace(getAppUrl("login.html?next=" + dest));
     return false;
   }
   return true;
 }
 
-/** Sign the user out and return to the login page. */
+/** Sign the user out and return to the home page. */
 export function logout() {
   const token = getSession();
   if (token) {
@@ -78,5 +86,5 @@ export function logout() {
     }).catch(() => {});
   }
   clearSession();
-  location.replace("/login.html");
+  location.replace(getAppUrl("index.html"));
 }

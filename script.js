@@ -1,8 +1,4 @@
-// script.js — Home page: grid, infinite scroll, search, genre/sort filters.
-
-import { requireAuth, logout } from "./auth.js";
-// Gate: redirect to login if no valid session. Stops all code below.
-if (!requireAuth()) throw new Error("unauthenticated");
+import { isSessionValid, logout, getAppUrl } from "./auth.js";
 
 import {
   anilistQuery,
@@ -75,8 +71,28 @@ const genreButtons = document.getElementById("genreButtons");
 const backTop = document.getElementById("backTop");
 const navLogoutBtn = document.getElementById("navLogoutBtn");
 
-// Logout
-navLogoutBtn?.addEventListener("click", () => logout());
+// Auth Button in Navbar (Sign In for guests, Sign Out for logged-in users)
+function updateNavAuthButton() {
+  if (!navLogoutBtn) return;
+  if (isSessionValid()) {
+    navLogoutBtn.innerHTML = `
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <span>Sign Out</span>
+    `;
+    navLogoutBtn.title = "Sign Out";
+    navLogoutBtn.onclick = () => logout();
+  } else {
+    navLogoutBtn.innerHTML = `
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+      <span>Sign In</span>
+    `;
+    navLogoutBtn.title = "Sign In";
+    navLogoutBtn.onclick = () => {
+      location.href = getAppUrl("login.html");
+    };
+  }
+}
+updateNavAuthButton();
 
 
 /* ------------------ Dynamic Background & Preload ------------------ */
@@ -276,7 +292,7 @@ function appendCards(items) {
 function createCard(media) {
   const a = document.createElement("a");
   a.className = "card" + (state.selectedId === media.id ? " selected" : "");
-  a.href = `/anime.html?id=${media.id}`;
+  a.href = getAppUrl(`anime.html?id=${media.id}`);
   a.dataset.animeId = String(media.id);
 
   const cover = document.createElement("div");

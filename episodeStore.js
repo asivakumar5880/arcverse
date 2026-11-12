@@ -1,6 +1,8 @@
 // episodeStore.js — ArcVerse Episode Store
 // Stores verified anime season and episode metadata.
 
+import { getAppUrl } from "./auth.js";
+
 const STORAGE_KEY = "arcverse_anime_data_v1";
 const ADMIN_TOKEN_KEY = "arcverse_admin_token";
 const ADMIN_AUTH_KEY = "arcverse_admin_auth";
@@ -130,7 +132,7 @@ function saveDB(data) {
 export function ensureAnimeSeed(animeId, animeTitle = "Anime", totalEpisodes = 12, bannerUrl = "", coverUrl = "") {
   const db = loadDB();
   const idStr = String(animeId);
-  const fallbackThumb = bannerUrl || coverUrl || "/assets/loading-bg.jpg";
+  const fallbackThumb = bannerUrl || coverUrl || getAppUrl("assets/loading-bg.jpg");
 
   if (db[idStr] && Array.isArray(db[idStr].seasons) && db[idStr].seasons.length > 0) {
     return db[idStr];

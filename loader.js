@@ -6,6 +6,8 @@
 //   4. 35 floating twinkling sparkle particles (white/gold)
 //   5. SA Monogram logo centered with soft pulse + thin gold ring
 
+import { getAppUrl } from "./auth.js";
+
 let loadStartTime = 0;
 let hideTimer = null;
 
@@ -24,8 +26,8 @@ function initLoadingBg() {
   const bg = document.getElementById("lsBg");
   if (!bg) return;
 
-  const webpUrl = "/assets/loading-bg.webp";
-  const jpgUrl = "/assets/loading-bg.jpg";
+  const webpUrl = getAppUrl("assets/loading-bg.webp");
+  const jpgUrl = getAppUrl("assets/loading-bg.jpg");
 
   const img = new Image();
   img.onload = () => {
