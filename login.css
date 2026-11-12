@@ -352,6 +352,20 @@ html, body {
   box-shadow: 0 0 0 3px rgba(155,93,229,0.15);
   background: #fff;
 }
+/* Neutralize browser autofill pale-blue box */
+.form-input:-webkit-autofill,
+.form-input:-webkit-autofill:hover, 
+.form-input:-webkit-autofill:focus, 
+.form-input:-webkit-autofill:active {
+  -webkit-text-fill-color: #111111 !important;
+  -webkit-box-shadow: 0 0 0 1000px #fafafa inset !important;
+  box-shadow: 0 0 0 1000px #fafafa inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+.form-input:focus:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset, 0 0 0 3px rgba(155,93,229,0.15) !important;
+  box-shadow: 0 0 0 1000px #ffffff inset, 0 0 0 3px rgba(155,93,229,0.15) !important;
+}
 .form-input:focus + .input-icon,
 .input-wrap:focus-within .input-icon.left-icon {
   color: var(--purple);
@@ -507,14 +521,35 @@ html, body {
   background: linear-gradient(90deg, #16a34a 0%, #4ade80 100%) !important;
 }
 
+/* signup prompt */
+.signup-prompt {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 0.82rem;
+  color: #666;
+  opacity: 0;
+  animation: fieldIn 0.4s ease 0.82s forwards;
+}
+.signup-link {
+  color: var(--purple);
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 6px;
+  transition: color var(--transition);
+}
+.signup-link:hover {
+  color: var(--pink);
+  text-decoration: underline;
+}
+
 /* right footer */
 .right-footer {
-  margin-top: 20px;
+  margin-top: 18px;
   font-size: 0.72rem;
   color: #999;
   text-align: center;
   opacity: 0;
-  animation: fieldIn 0.4s ease 0.84s forwards;
+  animation: fieldIn 0.4s ease 0.86s forwards;
 }
 
 /* ===================== PAGE FADE-IN ===================== */
@@ -551,6 +586,97 @@ html, body {
   .left-title { font-size: 1.5rem; letter-spacing: 0.12em; flex-basis: 100%; margin-bottom: 8px; }
   .left-desc, .feature-cards, .left-footer { display: none; }
   .right-panel { padding: 28px 24px 32px; }
+}
+
+/* ===================== FORGOT PASSWORD MODAL ===================== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 7, 26, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  animation: modalFadeIn 0.25s ease forwards;
+}
+
+@keyframes modalFadeIn {
+  to { opacity: 1; }
+}
+
+.modal-dialog {
+  position: relative;
+  width: min(440px, calc(100vw - 32px));
+  background: #ffffff;
+  border-radius: var(--radius-card);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.08);
+  padding: 32px 30px;
+  overflow: hidden;
+  transform: translateY(12px) scale(0.96);
+  animation: modalScaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes modalScaleUp {
+  to { transform: translateY(0) scale(1); }
+}
+
+.modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #888;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color var(--transition), background var(--transition);
+}
+.modal-close:hover {
+  color: #111;
+  background: #f1f1f1;
+}
+
+.modal-header {
+  margin-bottom: 20px;
+}
+.modal-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #111;
+  margin-bottom: 6px;
+}
+.modal-subtext {
+  font-size: 0.82rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+.modal-alert {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+.modal-alert.info {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  color: #166534;
+}
+.modal-alert.error {
+  background: #fff1f1;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
+}
+
+.modal-submit-btn {
+  margin-top: 8px;
 }
 
 /* ===================== REDUCED MOTION ===================== */

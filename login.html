@@ -59,7 +59,7 @@
           <h2 class="right-heading">Welcome Back</h2>
           <p class="right-subtext">Enter your credentials to access Arcverse.</p>
 
-          <form id="loginForm" novalidate autocomplete="on">
+          <form id="loginForm" novalidate autocomplete="off">
 
             <!-- Global error -->
             <div class="global-error" id="globalError" role="alert" aria-live="polite">
@@ -78,9 +78,11 @@
                   type="email"
                   id="emailInput"
                   class="form-input"
-                  placeholder="admin@arcverse.app"
-                  autocomplete="username email"
+                  placeholder="name@example.com"
+                  autocomplete="username"
                   required
+                  value=""
+                  readonly
                   inputmode="email"
                   aria-describedby="emailError"
                 />
@@ -105,6 +107,8 @@
                   placeholder="••••••••"
                   autocomplete="current-password"
                   required
+                  value=""
+                  readonly
                   aria-describedby="passwordError"
                 />
                 <button type="button" class="eye-btn" id="eyeBtn" aria-label="Show password" tabindex="-1">
@@ -129,11 +133,106 @@
               <span class="btn-check" aria-hidden="true">✓</span>
             </button>
 
+            <div class="signup-prompt">
+              <span>Don't have an account?</span>
+              <a href="/signup.html" class="signup-link">Create Account</a>
+            </div>
+
           </form>
 
-          <p class="right-footer">Authorized Personnel Only — Unauthorized access is prohibited.</p>
-        </div>
+          <p class="right-footer">Secure Access &bull; Anime Streaming Community</p>
+        </div><!-- .right-panel -->
       </div><!-- .login-card -->
+
+      <!-- FORGOT / RESET PASSWORD MODAL -->
+      <div class="modal-backdrop" id="forgotModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" style="display: none;">
+        <div class="modal-dialog">
+          <button type="button" class="modal-close" id="modalCloseBtn" aria-label="Close dialog">&times;</button>
+          
+          <div class="modal-header">
+            <h3 class="modal-title" id="modalTitle">Reset Password</h3>
+            <p class="modal-subtext">Enter your registered email to generate a secure reset token.</p>
+          </div>
+
+          <!-- Step 1: Request Reset Token -->
+          <div id="resetStep1">
+            <div class="form-group" style="opacity: 1; transform: none;">
+              <label class="field-label" for="resetEmailInput">REGISTERED EMAIL</label>
+              <div class="input-wrap">
+                <input
+                  type="email"
+                  id="resetEmailInput"
+                  class="form-input"
+                  placeholder="name@example.com"
+                  value=""
+                  required
+                />
+              </div>
+              <div class="field-error" id="resetEmailError" role="alert"></div>
+            </div>
+
+            <div class="modal-alert" id="resetAlertStep1" style="display: none;"></div>
+
+            <button type="button" class="signin-btn modal-submit-btn" id="requestTokenBtn" style="opacity: 1; transform: none;">
+              <span class="btn-text">GENERATE RESET TOKEN</span>
+              <div class="btn-spinner" aria-hidden="true"></div>
+            </button>
+          </div>
+
+          <!-- Step 2: Set New Password -->
+          <div id="resetStep2" style="display: none;">
+            <div class="form-group" style="opacity: 1; transform: none;">
+              <label class="field-label" for="resetTokenInput">RESET TOKEN</label>
+              <div class="input-wrap">
+                <input
+                  type="text"
+                  id="resetTokenInput"
+                  class="form-input"
+                  placeholder="Reset token"
+                  required
+                />
+              </div>
+              <div class="field-error" id="resetTokenError" role="alert"></div>
+            </div>
+
+            <div class="form-group" style="opacity: 1; transform: none;">
+              <label class="field-label" for="newPasswordInput">NEW PASSWORD</label>
+              <div class="input-wrap">
+                <input
+                  type="password"
+                  id="newPasswordInput"
+                  class="form-input"
+                  placeholder="At least 6 characters"
+                  required
+                />
+              </div>
+              <div class="field-error" id="newPasswordError" role="alert"></div>
+            </div>
+
+            <div class="form-group" style="opacity: 1; transform: none;">
+              <label class="field-label" for="confirmPasswordInput">CONFIRM NEW PASSWORD</label>
+              <div class="input-wrap">
+                <input
+                  type="password"
+                  id="confirmPasswordInput"
+                  class="form-input"
+                  placeholder="Confirm new password"
+                  required
+                />
+              </div>
+              <div class="field-error" id="confirmPasswordError" role="alert"></div>
+            </div>
+
+            <div class="modal-alert" id="resetAlertStep2" style="display: none;"></div>
+
+            <button type="button" class="signin-btn modal-submit-btn" id="submitNewPasswordBtn" style="opacity: 1; transform: none;">
+              <span class="btn-text">UPDATE PASSWORD</span>
+              <div class="btn-spinner" aria-hidden="true"></div>
+            </button>
+          </div>
+
+        </div>
+      </div>
 
     </div><!-- .login-page -->
 

@@ -10,19 +10,114 @@ if (isSessionValid()) {
 }
 
 /* ---- DOM ---- */
-const form         = document.getElementById("loginForm");
-const emailInput   = document.getElementById("emailInput");
-const passwordInput= document.getElementById("passwordInput");
-const signinBtn    = document.getElementById("signinBtn");
-const eyeBtn       = document.getElementById("eyeBtn");
-const eyeOpen      = document.getElementById("eyeOpen");
-const eyeClosed    = document.getElementById("eyeClosed");
-const globalError  = document.getElementById("globalError");
-const globalErrorMsg = document.getElementById("globalErrorMsg");
-const emailError   = document.getElementById("emailError");
-const passwordError= document.getElementById("passwordError");
-const loginCard    = document.getElementById("loginCard");
-const forgotLink   = document.getElementById("forgotLink");
+const form              = document.getElementById("loginForm");
+const emailInput        = document.getElementById("emailInput");
+const passwordInput     = document.getElementById("passwordInput");
+const rememberMe        = document.getElementById("rememberMe");
+const signinBtn         = document.getElementById("signinBtn");
+const eyeBtn            = document.getElementById("eyeBtn");
+const eyeOpen           = document.getElementById("eyeOpen");
+const eyeClosed         = document.getElementById("eyeClosed");
+const globalError       = document.getElementById("globalError");
+const globalErrorMsg    = document.getElementById("globalErrorMsg");
+const emailError        = document.getElementById("emailError");
+const passwordError     = document.getElementById("passwordError");
+const loginCard         = document.getElementById("loginCard");
+const forgotLink        = document.getElementById("forgotLink");
+
+// Modal DOM elements
+const forgotModal       = document.getElementById("forgotModal");
+const modalCloseBtn     = document.getElementById("modalCloseBtn");
+const resetStep1        = document.getElementById("resetStep1");
+const resetStep2        = document.getElementById("resetStep2");
+const resetEmailInput   = document.getElementById("resetEmailInput");
+const resetEmailError   = document.getElementById("resetEmailError");
+const resetAlertStep1   = document.getElementById("resetAlertStep1");
+const requestTokenBtn   = document.getElementById("requestTokenBtn");
+const resetTokenInput   = document.getElementById("resetTokenInput");
+const resetTokenError   = document.getElementById("resetTokenError");
+const newPasswordInput  = document.getElementById("newPasswordInput");
+const newPasswordError  = document.getElementById("newPasswordError");
+const confirmPasswordInput = document.getElementById("confirmPasswordInput");
+const confirmPasswordError = document.getElementById("confirmPasswordError");
+const resetAlertStep2   = document.getElementById("resetAlertStep2");
+const submitNewPasswordBtn = document.getElementById("submitNewPasswordBtn");
+
+/* ---- Clean & Empty Initialization (Zero credential pre-population) ---- */
+try {
+  localStorage.removeItem("arcverse_remember_email");
+  sessionStorage.removeItem("arcverse_remember_email");
+} catch {}
+
+let userHasTyped = false;
+
+function makeEditable(el) {
+  if (el && el.hasAttribute("readonly")) {
+    el.removeAttribute("readonly");
+  }
+}
+
+function unlockForm() {
+  makeEditable(emailInput);
+  makeEditable(passwordInput);
+}
+
+function resetLoginForm() {
+  if (form) form.reset();
+  if (emailInput) {
+    emailInput.value = "";
+    emailInput.setAttribute("readonly", "readonly");
+  }
+  if (passwordInput) {
+    passwordInput.value = "";
+    passwordInput.type = "password";
+    passwordInput.setAttribute("readonly", "readonly");
+  }
+  if (eyeOpen) eyeOpen.style.display = "";
+  if (eyeClosed) eyeClosed.style.display = "none";
+  if (rememberMe) rememberMe.checked = false;
+  userHasTyped = false;
+}
+
+// Reset immediately on script run
+resetLoginForm();
+
+// Unlock on any user touch/click/focus
+["focus", "pointerdown", "mousedown", "touchstart", "click"].forEach((evt) => {
+  emailInput?.addEventListener(evt, unlockForm);
+  passwordInput?.addEventListener(evt, unlockForm);
+  form?.addEventListener(evt, unlockForm);
+});
+
+// Automatic unlock after initial page layout has completed so tab navigation is smooth
+setTimeout(unlockForm, 250);
+
+// Track authentic user keystrokes
+["keydown", "keypress", "input", "paste"].forEach((evt) => {
+  emailInput?.addEventListener(evt, () => { userHasTyped = true; }, { passive: true });
+  passwordInput?.addEventListener(evt, () => { userHasTyped = true; }, { passive: true });
+});
+
+// Guard against asynchronous browser password-manager auto-injection
+function purgeUnpromptedAutofill() {
+  if (!userHasTyped) {
+    const active = document.activeElement;
+    if (emailInput && emailInput !== active && emailInput.value) {
+      emailInput.value = "";
+    }
+    if (passwordInput && passwordInput !== active && passwordInput.value) {
+      passwordInput.value = "";
+    }
+  }
+}
+
+// Run checks across several ticks to catch late browser autofill passes
+[40, 100, 200, 400, 750, 1200].forEach((delay) => {
+  setTimeout(purgeUnpromptedAutofill, delay);
+});
+
+// Reset on pageshow (handles browser back/forward cache restore)
+window.addEventListener("pageshow", resetLoginForm);
 
 /* ---- Rate limit (client-side mirror, server enforces) ---- */
 const LOCKOUT_KEY  = "arcverse_lockout";
@@ -53,10 +148,12 @@ function remainingLockout() {
 
 /* ---- Helpers ---- */
 function showFieldError(el, msg) {
+  if (!el) return;
   el.textContent = msg;
   el.classList.add("visible");
 }
 function clearFieldError(el) {
+  if (!el) return;
   el.textContent = "";
   el.classList.remove("visible");
 }
@@ -98,7 +195,11 @@ function successAndRedirect() {
 }
 
 /* ---- Auto-focus ---- */
-emailInput.focus();
+setTimeout(() => {
+  if (emailInput && !userHasTyped && !emailInput.value) {
+    emailInput.focus();
+  }
+}, 280);
 
 /* ---- Eye toggle ---- */
 eyeBtn.addEventListener("click", () => {
@@ -107,12 +208,6 @@ eyeBtn.addEventListener("click", () => {
   eyeOpen.style.display   = hidden ? "none"  : "";
   eyeClosed.style.display = hidden ? ""      : "none";
   eyeBtn.setAttribute("aria-label", hidden ? "Hide password" : "Show password");
-});
-
-/* ---- Forgot link ---- */
-forgotLink.addEventListener("click", (e) => {
-  e.preventDefault();
-  showGlobalError("Please contact the site owner to reset your password.");
 });
 
 /* ---- Clear errors on input ---- */
@@ -155,7 +250,7 @@ function validate() {
   return ok;
 }
 
-/* ---- Submit ---- */
+/* ---- Submit Login ---- */
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -173,24 +268,36 @@ form.addEventListener("submit", async (e) => {
   setLoading(true);
   clearGlobalError();
 
+  const email = emailInput.value.trim().toLowerCase();
   const password = passwordInput.value;
+  const isRemembered = Boolean(rememberMe && rememberMe.checked);
 
   try {
     const res = await fetch("/api/admin/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ email, password, rememberMe: isRemembered }),
     });
 
     const data = await res.json().catch(() => ({}));
 
     if (res.ok && data.success && data.token) {
-      // Success — store token
       clearLockout();
       try {
-        localStorage.setItem("arcverse_admin_token", data.token);
-        localStorage.setItem("arcverse_admin_auth", "true");
+        const storage = isRemembered ? localStorage : sessionStorage;
+        const otherStorage = isRemembered ? sessionStorage : localStorage;
+
+        storage.setItem("arcverse_admin_token", data.token);
+        storage.setItem("arcverse_admin_auth", "true");
+        storage.setItem("arcverse_admin_email", email);
+
+        otherStorage.removeItem("arcverse_admin_token");
+        otherStorage.removeItem("arcverse_admin_auth");
+        otherStorage.removeItem("arcverse_admin_email");
+
+        localStorage.removeItem("arcverse_remember_email");
       } catch {}
+
       successAndRedirect();
       return;
     }
@@ -199,11 +306,10 @@ form.addEventListener("submit", async (e) => {
     setLoading(false);
 
     if (res.status === 429) {
-      // Server locked out — mirror client-side lockout
       const lock = getLockout() || { count: MAX_ATTEMPTS, until: 0 };
       lock.until = Date.now() + LOCKOUT_MS;
       setLockout(lock);
-      showGlobalError("Too many failed attempts. Try again in 15 minutes.");
+      showGlobalError(data.error || "Too many failed attempts. Try again in 15 minutes.");
       shakeCard();
       return;
     }
@@ -219,7 +325,7 @@ form.addEventListener("submit", async (e) => {
     if (lock.until && Date.now() < lock.until) {
       showGlobalError("Too many failed attempts. Try again in 15 minutes.");
     } else {
-      showGlobalError("Incorrect email or password.");
+      showGlobalError(data.error || "Incorrect email or password.");
     }
     shakeCard();
     passwordInput.value = "";
@@ -236,3 +342,162 @@ form.addEventListener("submit", async (e) => {
 emailInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") { e.preventDefault(); passwordInput.focus(); }
 });
+
+/* =========================================================
+   FORGOT / RESET PASSWORD MODAL LOGIC
+   ========================================================= */
+
+function openForgotModal() {
+  if (!forgotModal) return;
+  forgotModal.style.display = "flex";
+  resetStep1.style.display = "block";
+  resetStep2.style.display = "none";
+  clearFieldError(resetEmailError);
+  clearFieldError(resetTokenError);
+  clearFieldError(newPasswordError);
+  clearFieldError(confirmPasswordError);
+  resetAlertStep1.style.display = "none";
+  resetAlertStep2.style.display = "none";
+
+  resetEmailInput.value = "";
+  resetEmailInput.focus();
+}
+
+function closeForgotModal() {
+  if (!forgotModal) return;
+  forgotModal.style.display = "none";
+}
+
+if (forgotLink) {
+  forgotLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    openForgotModal();
+  });
+}
+
+if (modalCloseBtn) {
+  modalCloseBtn.addEventListener("click", closeForgotModal);
+}
+
+if (forgotModal) {
+  forgotModal.addEventListener("click", (e) => {
+    if (e.target === forgotModal) closeForgotModal();
+  });
+}
+
+// Request Token Step
+if (requestTokenBtn) {
+  requestTokenBtn.addEventListener("click", async () => {
+    clearFieldError(resetEmailError);
+    resetAlertStep1.style.display = "none";
+
+    const email = resetEmailInput.value.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showFieldError(resetEmailError, "Enter a valid email address.");
+      return;
+    }
+
+    requestTokenBtn.disabled = true;
+    requestTokenBtn.classList.add("loading");
+
+    try {
+      const res = await fetch("/api/admin/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json().catch(() => ({}));
+
+      requestTokenBtn.disabled = false;
+      requestTokenBtn.classList.remove("loading");
+
+      if (res.ok && data.success) {
+        resetStep1.style.display = "none";
+        resetStep2.style.display = "block";
+        if (data.resetToken) {
+          resetTokenInput.value = data.resetToken;
+        }
+        resetAlertStep2.className = "modal-alert info";
+        resetAlertStep2.textContent = data.message || "Reset token generated. Set your new password below.";
+        resetAlertStep2.style.display = "block";
+        newPasswordInput.focus();
+      } else {
+        resetAlertStep1.className = "modal-alert error";
+        resetAlertStep1.textContent = data.error || "Unable to process request.";
+        resetAlertStep1.style.display = "block";
+      }
+    } catch {
+      requestTokenBtn.disabled = false;
+      requestTokenBtn.classList.remove("loading");
+      resetAlertStep1.className = "modal-alert error";
+      resetAlertStep1.textContent = "Network error. Please try again.";
+      resetAlertStep1.style.display = "block";
+    }
+  });
+}
+
+// Set New Password Step
+if (submitNewPasswordBtn) {
+  submitNewPasswordBtn.addEventListener("click", async () => {
+    clearFieldError(resetTokenError);
+    clearFieldError(newPasswordError);
+    clearFieldError(confirmPasswordError);
+    resetAlertStep2.style.display = "none";
+
+    const token = resetTokenInput.value.trim();
+    const newPassword = newPasswordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+
+    let hasError = false;
+    if (!token) {
+      showFieldError(resetTokenError, "Reset token is required.");
+      hasError = true;
+    }
+    if (!newPassword || newPassword.length < 6) {
+      showFieldError(newPasswordError, "Password must be at least 6 characters.");
+      hasError = true;
+    }
+    if (newPassword !== confirmPassword) {
+      showFieldError(confirmPasswordError, "Passwords do not match.");
+      hasError = true;
+    }
+    if (hasError) return;
+
+    submitNewPasswordBtn.disabled = true;
+    submitNewPasswordBtn.classList.add("loading");
+
+    try {
+      const res = await fetch("/api/admin/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, newPassword }),
+      });
+      const data = await res.json().catch(() => ({}));
+
+      submitNewPasswordBtn.disabled = false;
+      submitNewPasswordBtn.classList.remove("loading");
+
+      if (res.ok && data.success) {
+        resetAlertStep2.className = "modal-alert info";
+        resetAlertStep2.textContent = "Password updated successfully! Please sign in with your new password.";
+        resetAlertStep2.style.display = "block";
+
+        passwordInput.value = "";
+        setTimeout(() => {
+          closeForgotModal();
+          passwordInput.focus();
+        }, 1500);
+      } else {
+        resetAlertStep2.className = "modal-alert error";
+        resetAlertStep2.textContent = data.error || "Invalid or expired reset token.";
+        resetAlertStep2.style.display = "block";
+      }
+    } catch {
+      submitNewPasswordBtn.disabled = false;
+      submitNewPasswordBtn.classList.remove("loading");
+      resetAlertStep2.className = "modal-alert error";
+      resetAlertStep2.textContent = "Network error. Please try again.";
+      resetAlertStep2.style.display = "block";
+    }
+  });
+}

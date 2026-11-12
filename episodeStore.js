@@ -55,12 +55,14 @@ export function clearAdminToken() {
   } catch {}
 }
 
-export async function loginAdmin(password) {
+export async function loginAdmin(password, email) {
   try {
+    const storedEmail = localStorage.getItem("arcverse_admin_email") || "";
+    const userEmail = email || storedEmail;
     const res = await fetch("/api/admin/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ email: userEmail, password }),
     });
     const data = await res.json().catch(() => ({}));
     if (res.ok && data.success && data.token) {

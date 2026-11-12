@@ -451,6 +451,9 @@ addSeasonBtn.addEventListener("click", () => {
 
 function syncAdminState() {
   const adminActive = isAdmin();
+  if (adminToolbar) {
+    adminToolbar.style.display = adminActive ? "flex" : "none";
+  }
   adminToggleBtn.classList.toggle("active", adminActive);
   adminStatusText.textContent = adminActive ? "ON" : "OFF";
   adminActions.style.display = adminActive ? "inline-flex" : "none";

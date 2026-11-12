@@ -1,6 +1,27 @@
-node_modules
+# Dependencies
+node_modules/
+
+# Environment variables — NEVER commit real credentials
 .env
 .env.local
-dist
-build
-.bolt
+.env.*.local
+
+# Build output
+dist/
+build/
+
+# Bolt / legacy tooling
+.bolt/
+
+# Database backups
+*.sql.dump
+*.pgdump
+arcverse_backups/
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/

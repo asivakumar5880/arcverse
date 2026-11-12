@@ -34,12 +34,23 @@ export function isSessionValid() {
   }
 }
 
-/** Clears the stored session token. */
 export function clearSession() {
   try {
-    localStorage.removeItem(ADMIN_TOKEN_KEY);
-    sessionStorage.removeItem(ADMIN_TOKEN_KEY);
-    localStorage.removeItem("arcverse_admin_auth");
+    const keys = [
+      ADMIN_TOKEN_KEY,
+      "arcverse_admin_auth",
+      "arcverse_admin_email",
+      "arcverse_user_name",
+      "arcverse_remember_email",
+      "arcverse_lockout",
+      "homeState",
+      "selectedAnimeId",
+      "selectedAnimeBanner",
+    ];
+    for (const k of keys) {
+      localStorage.removeItem(k);
+      sessionStorage.removeItem(k);
+    }
   } catch {}
 }
 
